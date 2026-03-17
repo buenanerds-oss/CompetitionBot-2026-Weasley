@@ -7,14 +7,14 @@ import edu.wpi.first.math.util.Units;
 public class SwerveConstants {
 
     //dimensions
-    public static final double driveWidth = 0;
-    public static final double driveLength = 0;
+    public static final double driveWidth = Units.inchesToMeters(29);
+    public static final double driveLength = Units.inchesToMeters(29);
 
     //turn motor
     public static final double turnGearRatio = 8.75;
-    public static final double turnMaxAmps = 5;
-    public static final double turnMaxVolts = 1;
-    public static final double turnAccuracyToleranceRAD = Units.degreesToRadians(1);
+    public static final double turnMaxAmps = 8;
+    public static final double turnMaxVolts = 1.5;
+    public static final double turnAccuracyToleranceRAD = Units.degreesToRadians(45);
 
     //drive motor
     public static final double driveGearRatio = 1;

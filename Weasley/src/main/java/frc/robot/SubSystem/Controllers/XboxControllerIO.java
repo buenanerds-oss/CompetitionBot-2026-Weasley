@@ -1,5 +1,6 @@
 package frc.robot.SubSystem.Controllers;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -14,37 +15,17 @@ public class XboxControllerIO implements ControllerIO{
 
     @Override
     public double getDriveX() {
-        return xbox.getLeftX();
+        return MathUtil.applyDeadband(-xbox.getLeftY(), 0.1);//-xbox.getLeftX();
     }
 
     @Override
     public double getDriveY() {
-        return xbox.getLeftY();
+        return MathUtil.applyDeadband(-xbox.getLeftX(), 0.1);//-xbox.getLeftY();
     }
 
     @Override
     public double getDriveTwist() {
-        return xbox.getRightX();
-    }
-
-    @Override
-    public Trigger getPIDIncrease() {
-        return xbox.povUp();
-    }
-
-    @Override
-    public Trigger getPIDDecrease() {
-        return xbox.povDown();
-    }
-
-    @Override
-    public Trigger getPIDSwitchPositive() {
-        return xbox.povRight();
-    }
-
-    @Override
-    public Trigger getPIDSwitchNegative() {
-        return xbox.povLeft();
+        return MathUtil.applyDeadband(-xbox.getRightX(), 0.1);//xbox.getRightX();
     }
 
 }

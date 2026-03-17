@@ -1,18 +1,24 @@
 package frc.robot.SubSystem.Swerve;
 
+import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ModuleMotorConfig {
-    public static double TURN_P = 0.175;
+    public static double TURN_P = 0.9; // smoothest  = p is 0.57 and D is 0.034
     public static double TURN_I = 0.00;
-    public static double TURN_D = 0.00;
+    public static double TURN_D = 0.025;//0.00001;//0.005;//0.003;
+    public static double TURN_KS = 0.00;
+    public static double turn_KV = 0.00;
 
-    public static double DRIVE_P = 0.00;
+    public static double DRIVE_P = 0.005;
     public static double DRIVE_I = 0.00;
     public static double DRIVE_D = 0.00;
     
@@ -30,7 +36,7 @@ public class ModuleMotorConfig {
          .d(TURN_D)
          .positionWrappingEnabled(true)
          .positionWrappingInputRange(0, 2*Math.PI);
-         turnMotorConfig.inverted(true)
+         turnMotorConfig.inverted(false)
          .idleMode(IdleMode.kBrake)
          .smartCurrentLimit(20)
          .voltageCompensation(12.0);
@@ -86,8 +92,8 @@ public class ModuleMotorConfig {
     public static void changeTurnPID(String valueToChange, double IncrementAmount) {
         switch (valueToChange) {
             case "P":
-                TURN_P += IncrementAmount;
-                turnMotorConfig.closedLoop.p(TURN_P);
+                //TURN_P += IncrementAmount;
+                //turnMotorConfig.closedLoop.p(TURN_P);
                 break;
             case "I":
                 TURN_I += IncrementAmount;

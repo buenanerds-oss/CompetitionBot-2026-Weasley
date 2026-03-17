@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Value;
 import java.util.HashMap;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 

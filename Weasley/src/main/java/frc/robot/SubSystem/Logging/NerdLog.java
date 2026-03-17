@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -15,6 +16,7 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class NerdLog {
 
@@ -25,6 +27,8 @@ public class NerdLog {
     static HashMap<String, StructArrayPublisher> structArrayPublishers;
     static HashMap<String, BooleanPublisher> booleanPublishers;
     static HashMap<String, BooleanArrayPublisher> boolArrayPublishers;
+    static HashMap<String,GenericEntry> shuffleLogs;
+    static HashMap<String, ShuffleboardTab> Shuffletabs;
     static NetworkTableInstance tableInst;
 
 
@@ -57,6 +61,9 @@ public class NerdLog {
         structArrayPublishers = new HashMap<>();
         booleanPublishers = new HashMap<>();
         boolArrayPublishers = new HashMap<>();
+        shuffleLogs = new HashMap<>();
+        Shuffletabs = new HashMap<>();
+        
     }
 
     //uses reflection and reflection scares me...

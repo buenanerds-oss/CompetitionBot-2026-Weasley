@@ -5,11 +5,49 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SubSystem.Logging.NerdLog;
 
 public class JoystickIO implements ControllerIO{
+
+      private enum Axis {
+         // Joystick
+        JOYSTICK_FORWARD(1), JOYSTICK_SIDE(0), JOYSTICK_ROTATION(5),
+        // Throttle
+        THROTTLE_MAIN(2), THROTTLE_SLIDER(6), THROTTLE_DIAL_SMALL(3), THROTTLE_DIAL_BIG(4);
+
+        int axis;
+
+        Axis(int axis) {
+            this.axis = axis;
+        }
+
+        public int getAxis() {
+            return axis;
+        }
+
+    }
+    private enum Buttons{
+         // Joystick
+        FIRE(2), DOUBLE_TRIGGER_1(1), DOUBLE_TRIGGER_2(15), 
+        A(3), B(4), C(5), PINKY_TRIGGER(6),
+         DPAD_UP_JOYSTICK(16), DPAD_RIGHT_JOYSTICK(17), DPAD_DOWN_JOYSTICK(18), DPAD_LEFT_JOYSTICK(19),
+         T1(9), T2(10), T3(11), T4(12), T5(13), T6(14),
+         MODE_UP(24), MODE_MIDDLE(25), MODE_DOWN(26),
+        // Throttle
+        D(7), E(8), I(30),
+         FUNCTION(27), START_STOP(28), RESET(29),
+         DPAD_UP_THROTTLE(20), DPAD_RIGHT_THROTTLE(21), DPAD_DOWN_THROTTLE(22), DPAD_LEFT_THROTTLE(23),
+         MOUSE_BUTTON(31), PRESS_WHEEL(32);
+
+         int button;
+
+        Buttons(int button) {
+            this.button = button;
+         }
+
+         public int getButton() {
+            return button;
+         }
+
+    }
     Joystick joystick;
-    boolean PidPControlwasPressed = false;
-    boolean PidDControlwasPressed = false;
-    boolean PidIncrementControlwasPressed = false;
-    double PIDIncrementAmount = 0;
 
 
     public JoystickIO(int port) {
@@ -28,57 +66,7 @@ public class JoystickIO implements ControllerIO{
 
     @Override
     public double getDriveTwist() {
-        return joystick.getTwist(); // TODO invert if needed;
+        return -joystick.getRawAxis(Axis.JOYSTICK_ROTATION.getAxis()); // TODO invert if needed;
     }
 
-    @Override
-    public double getPIDPChange() {
-
-        NerdLog.logDouble("PID Increment Amount", PIDIncrementAmount);
-        if (joystick.getRawButtonPressed(11) && !PidIncrementControlwasPressed) {
-            PidIncrementControlwasPressed = true;
-            PIDIncrementAmount += 0.01;
-        }
-        else if (joystick.getRawButton(12)) {
-            PidIncrementControlwasPressed = true;
-            PIDIncrementAmount +=0.01;
-        }
-        else if (PidIncrementControlwasPressed) {
-        }
-        else {
-            PidIncrementControlwasPressed = false;
-        }
-
-        if (PidPControlwasPressed && !PidPControlwasPressed) return 0.00;
-        else if(joystick.getRawButtonPressed(9) ) {
-            PidPControlwasPressed = true;
-            return PIDIncrementAmount;
-        }
-        else if(joystick.getRawButtonPressed(10) && !PidPControlwasPressed)  {
-            PidPControlwasPressed = true;
-            return -1.00 * PIDIncrementAmount;
-        }
-        else if (PidPControlwasPressed) return 0.00;
-        PidPControlwasPressed = false;
-        return 0.00;
-    }
-
-    @Override
-    public double getPIDDChange() {
-
-        
-        if(joystick.getRawButtonPressed(13) && !PidDControlwasPressed) {
-            PidDControlwasPressed = true;
-            return PIDIncrementAmount;
-        }
-        else if(joystick.getRawButtonPressed(14) && !PidDControlwasPressed) {
-            PidDControlwasPressed = true;
-            return -1.00 * PIDIncrementAmount;
-        }
-        else if (PidDControlwasPressed) return 0.00;
-        // the rest is basically else{
-        PidDControlwasPressed = false;
-        return 0.00;
-    }
-    
 }

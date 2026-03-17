@@ -2,10 +2,11 @@ package frc.robot.SubSystem.Controllers;
 
 import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class CommandJoystickIO implements ControllerIO {
+public class CommandJoystickIO extends CommandGenericHID implements ControllerIO{
     private enum Axis {
          // Joystick
         JOYSTICK_FORWARD(1), JOYSTICK_SIDE(0), JOYSTICK_ROTATION(5),
@@ -51,6 +52,7 @@ public class CommandJoystickIO implements ControllerIO {
     CommandJoystick joystick;
 
     public CommandJoystickIO(int port) {
+        super(port);
         this.joystick = new CommandJoystick(port);
     }
 
@@ -69,27 +71,7 @@ public class CommandJoystickIO implements ControllerIO {
         return joystick.getTwist();
     }
 
-    @Override
-    public Trigger getPIDIncrease() {
-        return joystick.button(Buttons.T1.getButton());
-        
-    }
-
-    @Override
-    public Trigger getPIDDecrease() {
-        return joystick.button(Buttons.T2.getButton());
-    }
-
-    @Override
-    public Trigger getPIDSwitchPositive() {
-        return joystick.button(Buttons.T3.getButton());
-    }
-
-    @Override
-    public Trigger getPIDSwitchNegative() {
-        return joystick.button(Buttons.T4.getButton());
-    }
-    
+   
 
 
     
