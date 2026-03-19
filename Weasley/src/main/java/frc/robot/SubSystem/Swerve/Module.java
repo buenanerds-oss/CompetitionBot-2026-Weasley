@@ -22,7 +22,6 @@ import frc.robot.Util.BasicUtil;
 public class Module extends ModuleMotorConfig implements ModuleIO {
 
     
-    boolean EmergencyStop = false;
     double turnAmps;
     double turnVolts;
     double driveAmps;
@@ -76,7 +75,6 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
         //PID initialization:
         drivePID = new PIDController(ModuleMotorConfig.DRIVE_P, ModuleMotorConfig.DRIVE_I, ModuleMotorConfig.DRIVE_D);
         turnPID = new PIDController(ModuleMotorConfig.TURN_P, ModuleMotorConfig.TURN_I, ModuleMotorConfig.TURN_D);
-        //turnFeedforward = new SimpleMotorFeedforward(,);
 
         turnPID.enableContinuousInput(0, 2* Math.PI);
         turnPID.setTolerance(0.2);
@@ -84,45 +82,21 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
     }
     @Override
     public void setDesiredSwerveState(SwerveModuleState desiredState) {
-        desiredState.optimize(new Rotation2d(currentSwerveState.angle.getRadians()));//currentSwerveState.angle); // modules doesn;t rotate more than 180DEG most of the time
-        //desiredState.cosineScale(new Rotation2d(currentSwerveState.angle.getRadians()));//currentSwerveState.angle); // Smoother driving
+        desiredState.optimize(new Rotation2d(currentSwerveState.angle.getRadians()));// ensures the turning setpoint takes the most effecient route
+        //desiredState.cosineScale(new Rotation2d(currentSwerveState.angle.getRadians()));// prevents undesired rotation or translation
         this.desiredState = desiredState;
 
-        //Force Stops everything if we're asking for more resources than what we are supposed to
-        if (turnMotor.getOutputCurrent() >= SwerveConstants.turnMaxAmps || driveMotor.getOutputCurrent() >= SwerveConstants.driveMaxAmps || // current
-         turnMotor.getAppliedOutput() * turnMotor.getBusVoltage() >= SwerveConstants.turnMaxVolts || driveMotor.getAppliedOutput() * driveMotor.getBusVoltage() >= SwerveConstants.driveMaxVolts//voltage
-        ) EmergencyStop = true;
-
+        
         //turning
-        //if we are not at the position AND we aren't in emergencyStop, keep running PID.
-        //if (!BasicUtil.numIsInBallparkOf(currentSwerveState.angle.getRadians(), desiredState.angle.getRadians(), SwerveConstants.turnAccuracyToleranceRAD)) {
-           turnPID.setSetpoint(desiredState.angle.getRadians());
-           turnMotor.setVoltage(turnPID.calculate(AbsEncoder.get()));
-           //turnSparkPID.setSetpoint(desiredState.angle.getRadians(), ControlType.kPosition);
-          // atSetpoint = false;
-       // }
-        /*else {
-            turnMotor.setVoltage(0);
-            turnPID.reset();
-            atSetpoint = true;
-        } */
-            //turnMotor.setVoltage(0);} // if we don't need it to move, stop giving it the voltage to move
-
-        desiredState.speedMetersPerSecond *= Math.cos(turnPID.getError()); 
-        //drive
-        //the equation in the getter of the velocity converts from RPM to RADPM to MPS
+            turnPID.setSetpoint(desiredState.angle.getRadians());
+            turnMotor.setVoltage(turnPID.calculate(AbsEncoder.get()));
+          
+        //Driving
+            //manual cosine scaling because the abs encoder doesnt want to work for the scaling:
+            desiredState.speedMetersPerSecond *= Math.cos(turnPID.getError()); 
       
-        //driveSparkPID.setSetpoint(desiredState.speedMetersPerSecond/ SwerveConstants.wheelRadiusMeters, ControlType.kVelocity);
-        driveMotor.setVoltage(-desiredState.speedMetersPerSecond*3); // was *5
-        /*
-        if (turnPID.atSetpoint()) { // only drive if at setpoint
-        driveMotor.setVoltage(-desiredState.speedMetersPerSecond*3); // was *5
-        GroupLogger.LogBooleanGroup("modules at set", true, index, 4);
-        }
-        else  {
-            GroupLogger.LogBooleanGroup("modules at set", false, index, 4);
-            driveMotor.setVoltage(0.00);
-           } */
+            driveMotor.setVoltage(-desiredState.speedMetersPerSecond*3); // was *5
+        
 
         //record changes:
         turnAmps = turnMotor.getOutputCurrent();
@@ -142,37 +116,17 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
     }
 
     @Override
-    public void changeModuleTurnPID(String valueToChange, double IncrementAmount) {
-        forceSetVoltage(0, 0);
-        changeTurnPID(valueToChange, IncrementAmount);
-        turnPID = new PIDController(ModuleMotorConfig.TURN_P,
-         ModuleMotorConfig.TURN_I,
-         ModuleMotorConfig.TURN_D);
-    }
-
-    @Override
-    public void changeModuleDrivePID(String valueToChange, double IncrementAmount) {
-        forceSetVoltage(0, 0);
-        changeDrivePID(valueToChange, IncrementAmount);
-        drivePID = new PIDController(ModuleMotorConfig.DRIVE_P,
-         ModuleMotorConfig.DRIVE_I,
-         ModuleMotorConfig.DRIVE_D);
-    }
-
-    @Override
     public void periodic() {
-        GroupLogger.logStructGroup("Swerve Module States", currentSwerveState, SwerveModuleState.struct, index, 4);
-        GroupLogger.logDoubleGroup("Swerve Module Turn Amps", turnAmps, index, 4);
-        GroupLogger.logDoubleGroup("Swerve Module Turn volts", turnVolts, index, 4);
-        GroupLogger.logDoubleGroup("Swerve Module drive Amps", driveAmps, index, 4);
-        GroupLogger.logDoubleGroup("Swerve Module drive Volts", driveVolts, index, 4);
-        GroupLogger.LogBooleanGroup("Emergency Stopped?", EmergencyStop, index, 4);
-        GroupLogger.logStructGroup("Swerve Module States", currentSwerveState, SwerveModuleState.struct, index, 4);
-        GroupLogger.logStructGroup("swerve module Positions", currentswervePosition, SwerveModulePosition.struct, index, 4);
-        GroupLogger.LogBooleanGroup("Module Turn @ setpoint", turnPID.atSetpoint(), index, 4);
-        GroupLogger.logStructGroup("desired state", desiredState, SwerveModuleState.struct, index, 4);
-        if (RobotState.isDisabled()) EmergencyStop = false;
-        GroupLogger.logDoubleGroup("Turn Error", turnPID.getError(), index, 4);
+        GroupLogger.logStructGroup("Drive/Modules/Swerve Module States", currentSwerveState, SwerveModuleState.struct, index, 4);
+        GroupLogger.logDoubleGroup("Drive/Modules/Swerve Module Turn Amps", turnAmps, index, 4);
+        GroupLogger.logDoubleGroup("Drive/Modules/Swerve Module Turn volts", turnVolts, index, 4);
+        GroupLogger.logDoubleGroup("Drive/Modules/Swerve Module drive Amps", driveAmps, index, 4);
+        GroupLogger.logDoubleGroup("Drive/Modules/Swerve Module drive Volts", driveVolts, index, 4);
+        GroupLogger.logStructGroup("Drive/Modules/Swerve Module States", currentSwerveState, SwerveModuleState.struct, index, 4);
+        GroupLogger.logStructGroup("Drive/Modules/swerve module Positions", currentswervePosition, SwerveModulePosition.struct, index, 4);
+        GroupLogger.LogBooleanGroup("Drive/Modules/Module Turn @ setpoint", turnPID.atSetpoint(), index, 4);
+        GroupLogger.logStructGroup("Drive/Modules/desired state", desiredState, SwerveModuleState.struct, index, 4);
+        GroupLogger.logDoubleGroup("Drive/Modules/Turn Error", turnPID.getError(), index, 4);
 
         
     }

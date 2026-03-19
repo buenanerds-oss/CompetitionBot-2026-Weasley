@@ -24,4 +24,15 @@ public interface ControllerIO {
      */
     public default double getDriveTwist() {return 0.0;}
 
+    public default boolean startShooter() {return false;}
+
+    public default boolean startShooterInverted() {return false;}
+
+    public default boolean hopperOut() {return false;}
+
+    public default boolean hopperIn() {return false;}
+
+    public default boolean climbUp() {return false;}
+
+    public default boolean climbDown() {return false;}
 }

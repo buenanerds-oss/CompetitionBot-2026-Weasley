@@ -63,20 +63,13 @@ public class Drive implements Subsystem {
     @Override
     public void periodic() {
         //logs in periodic
-        NerdLog.logStructvariable("Current Chassis", currentChassis, ChassisSpeeds.struct);
-        NerdLog.logStructvariable("DrivePose", poseEstimator.getEstimatedPosition(), Pose2d.struct);
-
-        NerdLog.logDouble(" Module Drive PID P", Robot.isReal()? ModuleMotorConfig.DRIVE_P : ModuleMotorConfig.SIM_DRIVE_P);
-        NerdLog.logDouble(" Module Drive PID I", Robot.isReal()? ModuleMotorConfig.DRIVE_I : ModuleMotorConfig.SIM_DRIVE_I);
-        NerdLog.logDouble(" Module Drive PID D", Robot.isReal()? ModuleMotorConfig.DRIVE_D : ModuleMotorConfig.SIM_DRIVE_D);
-        NerdLog.logDouble(" Module turn PID P",  Robot.isReal()? ModuleMotorConfig.TURN_P : ModuleMotorConfig.SIM_TURN_P);
-        NerdLog.logDouble(" Module Turn PID I",  Robot.isReal()? ModuleMotorConfig.TURN_I : ModuleMotorConfig.SIM_TURN_I);
-        NerdLog.logDouble(" Module Turn PID D",  Robot.isReal()? ModuleMotorConfig.TURN_D : ModuleMotorConfig.SIM_TURN_D);
+        NerdLog.logStructvariable("Drive/Current Chassis", currentChassis, ChassisSpeeds.struct);
+        NerdLog.logStructvariable("Drive/DrivePose", poseEstimator.getEstimatedPosition(), Pose2d.struct);
         
         for (ModuleIO module : modules) module.periodic();
     }
 
-    public void changePID(String value, double incrementAmount) {
-        for (ModuleIO module : modules) module.changeModuleTurnPID(value, incrementAmount);
+    public Pose2d getEstimatedPose() {
+        return poseEstimator.getEstimatedPosition();
     }
 }

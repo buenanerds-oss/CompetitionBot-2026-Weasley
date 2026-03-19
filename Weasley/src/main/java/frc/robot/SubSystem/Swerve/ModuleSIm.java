@@ -125,22 +125,6 @@ public class ModuleSIm implements ModuleIO { // TODO document
     }
 
     @Override
-    public void changeModuleTurnPID(String valueToChange, double IncrementAmount) {
-        ModuleMotorConfig.changeTurnSimPID(valueToChange, IncrementAmount);
-        turnPID = new PIDController(ModuleMotorConfig.SIM_TURN_P,
-         ModuleMotorConfig.SIM_TURN_I,
-         ModuleMotorConfig.SIM_TURN_D);
-    }
-
-    @Override
-    public void changeModuleDrivePID(String valueToChange, double IncrementAmount) {
-        ModuleMotorConfig.changeDriveSimPID(valueToChange, IncrementAmount);
-        drivePID = new PIDController(ModuleMotorConfig.SIM_DRIVE_P,
-         ModuleMotorConfig.SIM_DRIVE_I,
-         ModuleMotorConfig.SIM_DRIVE_D);
-    }
-
-    @Override
     public void periodic() {
 
         GroupLogger.logDoubleGroup("Module Drive Voltage", driveVolts, index, 4);

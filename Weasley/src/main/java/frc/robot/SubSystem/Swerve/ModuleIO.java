@@ -22,23 +22,6 @@ public interface ModuleIO{
     public default void forceSetVoltage(double turnVolts, double driveVolts) {
 
     }
-    /**
-     * changes the PID for the turn controller
-     * @param valueToChange - P, I, D, only. no Variation allowed either
-     * @param IncrementAmount - set negative to reduce value
-     */
-    public default void changeModuleTurnPID(String valueToChange, double IncrementAmount) {
-
-    }
-
-     /**
-     * changes the PID for the drive controller
-     * @param valueToChange - P, I, D, only. no Variation allowed either
-     * @param IncrementAmount - set negative to reduce value
-     */
-    public default void changeModuleDrivePID(String valueToChange, double IncrementAmount) {
-
-    }
 
     /**logs the individual module */
     public default void periodic() {

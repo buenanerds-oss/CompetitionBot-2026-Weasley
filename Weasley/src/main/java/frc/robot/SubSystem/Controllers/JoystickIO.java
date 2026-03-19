@@ -1,6 +1,7 @@
 package frc.robot.SubSystem.Controllers;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SubSystem.Logging.NerdLog;
 
@@ -8,7 +9,7 @@ public class JoystickIO implements ControllerIO{
 
       private enum Axis {
          // Joystick
-        JOYSTICK_FORWARD(1), JOYSTICK_SIDE(0), JOYSTICK_ROTATION(5),
+        JOYSTICK_FORWARD(1), JOYSTICK_SIDE(0), JOYSTICK_ROTATION(5), // rotation also equals twist, if thats easier to recognize
         // Throttle
         THROTTLE_MAIN(2), THROTTLE_SLIDER(6), THROTTLE_DIAL_SMALL(3), THROTTLE_DIAL_BIG(4);
 
@@ -67,6 +68,36 @@ public class JoystickIO implements ControllerIO{
     @Override
     public double getDriveTwist() {
         return -joystick.getRawAxis(Axis.JOYSTICK_ROTATION.getAxis()); // TODO invert if needed;
+    }
+
+    @Override
+    public boolean startShooter() {
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) > 0.5;
+    }
+
+    @Override
+    public boolean startShooterInverted() {
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) < -0.5;
+    }
+
+    @Override
+    public boolean hopperOut() {
+        return joystick.getRawButton(Buttons.DOUBLE_TRIGGER_2.getButton());
+    }
+
+    @Override
+    public boolean hopperIn() {
+        return joystick.getRawButton(Buttons.PINKY_TRIGGER.getButton());
+    }
+
+    @Override
+    public boolean climbUp() {
+        return false;
+    }
+
+    @Override
+    public boolean climbDown() {
+        return false;
     }
 
 }
