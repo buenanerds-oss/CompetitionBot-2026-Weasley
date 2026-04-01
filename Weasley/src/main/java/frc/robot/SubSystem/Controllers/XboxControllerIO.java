@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.SubSystem.Logging.NerdLog;
 
 public class XboxControllerIO implements ControllerIO{
 
@@ -25,7 +26,7 @@ public class XboxControllerIO implements ControllerIO{
 
     @Override
     public double getDriveY() {
-        return MathUtil.applyDeadband(xbox.getLeftX(), 0.1);//-xbox.getLeftY();
+        return MathUtil.applyDeadband(-xbox.getLeftX(), 0.1);//-xbox.getLeftY();
     }
 
     @Override

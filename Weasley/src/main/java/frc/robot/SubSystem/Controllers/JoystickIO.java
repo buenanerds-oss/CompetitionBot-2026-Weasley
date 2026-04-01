@@ -83,12 +83,12 @@ public class JoystickIO implements ControllerIO{
 
     @Override
     public boolean startShooter() {
-        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) > 0.5;
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) < -0.75;
     }
 
     @Override
     public boolean startShooterInverted() {
-        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) < -0.5;
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) > 0.75;
     }
 
     @Override

@@ -12,8 +12,8 @@ import frc.robot.SubSystem.Logging.NerdLog;
 public class Climb implements ClimbIO{
 
     double requestedVolts = 12;
-    double upLimitRAD = 0.00; // limit for climb when climbing Up
-    double downLimitRAD = 0.00; // limit for climbing when climbing down
+    double upLimitRAD = 1000.00; // limit for climb when climbing Up
+    double downLimitRAD = -1000.00; // limit for climbing when climbing down
 
     //functionals:
     SparkMax motor;
@@ -21,7 +21,7 @@ public class Climb implements ClimbIO{
 
     public Climb(SparkMax motor) {
         this.motor = motor;
-        configureMotor(false);
+        configureMotor(true);
         this.encoder = motor.getEncoder();
     }
 
@@ -33,6 +33,11 @@ public class Climb implements ClimbIO{
     @Override
     public void climbDown() {
         motor.setVoltage(-requestedVolts);
+    }
+
+    @Override
+    public void stop() {
+        motor.setVoltage(0.00);
     }
 
     @Override

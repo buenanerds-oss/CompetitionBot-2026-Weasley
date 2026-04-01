@@ -18,8 +18,8 @@ import frc.robot.SubSystem.Logging.NerdLog;
 public class Hopper implements HopperIO{
 
     //for adjusting:
-    double requestedVoltage;
-    double requestedSpeed;
+    double requestedVoltage = 6.5;
+    double requestedSpeed = 0;
 
     //logging:
     double velocityRadPerSec;
@@ -51,7 +51,7 @@ public class Hopper implements HopperIO{
 
     @Override
     public void hopperin() {
-        motor.setVoltage(requestedVoltage * speedControl.calculate(velocityRadPerSec));
+        motor.setVoltage(requestedVoltage);//requestedVoltage * speedControl.calculate(velocityRadPerSec));
         
         /*
         pidCrtl.setSetpoint(requestedSpeed);
@@ -63,7 +63,9 @@ public class Hopper implements HopperIO{
 
     @Override
     public void hopperOut() {
-        motor.set(-requestedVoltage * speedControl.calculate(-velocityRadPerSec));
+        if (velocityRadPerSec < 20)
+        motor.setVoltage(-requestedVoltage);
+        else forcesetVoltage(0.00);// * speedControl.calculate(-velocityRadPerSec));
         
         /* 
         pidCrtl.setSetpoint(-requestedSpeed);
@@ -71,6 +73,11 @@ public class Hopper implements HopperIO{
         motor.setVoltage(requestedVoltage);
         */
         
+    }
+
+    @Override
+    public void forcesetVoltage(double voltage) {
+        motor.setVoltage(voltage);
     }
 
     @Override
@@ -82,12 +89,13 @@ public class Hopper implements HopperIO{
 
 
         requestedSpeed = NerdLog.getdouble("Fuel Management/ Hopper/ Requested Speed");
-        requestedVoltage = NerdLog.getdouble("Fuel Management/ Hopper/ Requested Voltage");
+        requestedVoltage = NerdLog.getdouble("Fuel Control/Hopper/ Requested Voltage");
         /*
         pidCrtl.setP(NerdLog.getdouble("Fuel Control/Hopper/ P"));
         pidCrtl.setI(NerdLog.getdouble("Fuel Control/Hopper/ I"));
         pidCrtl.setD(NerdLog.getdouble("Fuel Control/Hopper/ D"));
         */
+        NerdLog.logDouble("The voltage We Want", requestedVoltage);
 
         speedControl.setSetpoint(requestedSpeed);
 
@@ -97,7 +105,7 @@ public class Hopper implements HopperIO{
         SparkMaxConfig config = new SparkMaxConfig();
          config.inverted(invert)
         .voltageCompensation(12)
-        .idleMode(IdleMode.kCoast)
+        .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(20);
          config.signals.absoluteEncoderPositionAlwaysOn(true)
         .absoluteEncoderPositionPeriodMs((int) 1000/100)

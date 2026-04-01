@@ -28,7 +28,7 @@ import frc.robot.SubSystem.Swerve.Gyro.GyroSim;
 import frc.robot.SubSystem.Swerve.Gyro.Pidgeon2IO;
 
 public class RobotContainer {
-  ControllerIO Controller = new XboxControllerIO(0);
+  ControllerIO Controller = new JoystickIO(0);//XboxControllerIO(0);
 
   final double driveSpeedFactor = 1;
 
@@ -77,12 +77,14 @@ public class RobotContainer {
     NerdLog.logDouble("joystick y", Controller.getDriveY());
     swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist());
     if (Controller.startShooter()) fuelCrtl.shootShooter();
+    else if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     else {fuelCrtl.stopShooting();}
-    if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     if (Controller.hopperOut()) fuelCrtl.outtake();
-    if (Controller.hopperIn()) fuelCrtl.intake();
-    if (Controller.climbUp() && !climb.atLimit(true)) climb.climbUp();
-    if (Controller.climbDown() && !climb.atLimit(false)) climb.climbDown();
+    else if (Controller.hopperIn()) fuelCrtl.intake();
+    else fuelCrtl.stopHopper();
+    if (Controller.climbUp()) climb.climbUp();
+    else if (Controller.climbDown()) climb.climbDown();
+    else climb.stop();
   }
 
   public void disabledPeriodic() {
