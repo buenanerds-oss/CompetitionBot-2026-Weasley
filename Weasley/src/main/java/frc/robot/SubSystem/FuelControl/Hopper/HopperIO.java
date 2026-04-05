@@ -16,6 +16,10 @@ public interface HopperIO {
 
     }
 
+    public default void forcesetVoltage(double voltage) {
+
+    }
+
     public default void periodic() {
         
     }

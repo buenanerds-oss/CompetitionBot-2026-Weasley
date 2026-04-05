@@ -10,8 +10,8 @@ public class SwerveConstants {
     //dimensions
     public static final double driveWidth = Units.inchesToMeters(17);
     public static final double driveLength = Units.inchesToMeters(13.5);
-    private static final double frontdriveWidth = Units.inchesToMeters(17);
-    private static final double backdriveWidth = Units.inchesToMeters(17);
+    private static final double frontdriveWidth = Units.inchesToMeters(25);
+    private static final double backdriveWidth = Units.inchesToMeters(14);
 
     //turn motor
     public static final double turnGearRatio = 8.75;

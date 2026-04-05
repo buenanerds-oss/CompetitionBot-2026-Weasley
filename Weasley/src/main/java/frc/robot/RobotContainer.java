@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.ResourceBundle.Control;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,7 +30,7 @@ import frc.robot.SubSystem.Swerve.Gyro.GyroSim;
 import frc.robot.SubSystem.Swerve.Gyro.Pidgeon2IO;
 
 public class RobotContainer {
-  ControllerIO Controller = new XboxControllerIO(0);
+  ControllerIO Controller = new JoystickIO(0);//XboxControllerIO(0);
 
   final double driveSpeedFactor = 1;
 
@@ -36,25 +38,25 @@ public class RobotContainer {
   Drive swerve;
   FuelControl fuelCrtl;
   ClimbIO climb;
+  GyroIO gyro;
 
   public RobotContainer() {
     NerdLog.startLog();
    GroupLogger.startGroupLogger();
    
    ModuleIO[] modules = new ModuleIO[4];
-    GyroIO gyro;
     if (Robot.isReal()) {
       for (int i = 0; i <= 3; i++) {
         modules[i] = new Module(i, RobotMap.SwerveTurnMotors[i], RobotMap.SwerveDriveMotors[i]);
       }
-      gyro = new Pidgeon2IO();
+      this.gyro = new Pidgeon2IO();
     }
     else {
       for (int i = 0; i<=3; i++) {
         modules[i] = new ModuleSIm(i);
       }
-      if (modules[0].getSwerveSim().isPresent()) gyro = new GyroSim(modules[0].getSwerveSim().get().getGyroSimulation());
-      else gyro = new GyroSim();
+      if (modules[0].getSwerveSim().isPresent()) this.gyro = new GyroSim(modules[0].getSwerveSim().get().getGyroSimulation());
+      else this.gyro = new GyroSim();
     }
     
     swerve = new Drive(gyro, modules);
@@ -77,12 +79,16 @@ public class RobotContainer {
     NerdLog.logDouble("joystick y", Controller.getDriveY());
     swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist());
     if (Controller.startShooter()) fuelCrtl.shootShooter();
+    else if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     else {fuelCrtl.stopShooting();}
-    if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     if (Controller.hopperOut()) fuelCrtl.outtake();
-    if (Controller.hopperIn()) fuelCrtl.intake();
-    if (Controller.climbUp() && !climb.atLimit(true)) climb.climbUp();
-    if (Controller.climbDown() && !climb.atLimit(false)) climb.climbDown();
+    else if (Controller.hopperIn()) fuelCrtl.intake();
+    else fuelCrtl.stopHopper();
+    if (Controller.climbUp()) climb.climbUp();
+    else if (Controller.climbDown()) climb.climbDown();
+    else climb.stop();
+    if (Controller.resetGyro()) gyro.reset();
+    
   }
 
   public void disabledPeriodic() {

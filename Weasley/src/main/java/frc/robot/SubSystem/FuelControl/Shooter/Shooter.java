@@ -18,9 +18,9 @@ public class Shooter implements ShooterIO {
 
     //for ShuffleBoard:
     ShuffleboardTab shuffleTab;
-    double targetSpeedRadPerSec = 100;
-    double RequestedVolts = 0.00;
-    double CrtlTolerance = 0.25/2;
+    double targetSpeedRadPerSec = 400;
+    double RequestedVolts = 8.45;
+    double CrtlTolerance = 20;
 
 
     //logging:
@@ -38,7 +38,7 @@ public class Shooter implements ShooterIO {
      */
     public Shooter(SparkMax motor) {
         this.motor = motor;
-        configureMotor(false);
+        configureMotor(true);
         this.encoder = motor.getEncoder();
         bangCrtl = new BangBangController();
         bangCrtl.setTolerance(CrtlTolerance);
@@ -58,11 +58,11 @@ public class Shooter implements ShooterIO {
     public void shoot(boolean invert) {
         if (!invert) {
 
-            /*
+            
             //bang bang control:
             bangCrtl.setSetpoint(targetSpeedRadPerSec);
             motor.setVoltage(RequestedVolts * bangCrtl.calculate(velocityRadPerSec));
-            */
+            
 
             /*
             // pid control:
@@ -74,11 +74,11 @@ public class Shooter implements ShooterIO {
 
         else {
 
-            /*
+            
             //bang bang control:
             bangCrtl.setSetpoint(targetSpeedRadPerSec);
             motor.setVoltage(-RequestedVolts * bangCrtl.calculate(-velocityRadPerSec));
-            */
+            
 
             /*
             pid control:
@@ -97,7 +97,7 @@ public class Shooter implements ShooterIO {
 
     @Override
     public boolean isShooting() {
-        return true;//velocityRadPerSec > targetSpeedRadPerSec - bangCrtlTolerance;//bangCrtl.atSetpoint();//Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
+        return bangCrtl.atSetpoint();//velocityRadPerSec > targetSpeedRadPerSec - bangCrtlTolerance;//bangCrtl.atSetpoint();//Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
     }
 
     @Override
@@ -109,7 +109,7 @@ public class Shooter implements ShooterIO {
         NerdLog.logDouble("Fuel Control/Shooter/ Encoder Velocity RadPerSec", velocityRadPerSec);
 
 
-        //RequestedVolts = NerdLog.getdouble("Fuel Control/Shooter/ requestedVolts");
+        RequestedVolts = NerdLog.getdouble("Fuel Control/Shooter/ requestedVolts");
         targetSpeedRadPerSec= NerdLog.getdouble("Fuel Control/Shooter/ target Speed Rad Per Sec");
         CrtlTolerance = NerdLog.getdouble("Fuel Control/Shooter/ control Tolerance");
         /*

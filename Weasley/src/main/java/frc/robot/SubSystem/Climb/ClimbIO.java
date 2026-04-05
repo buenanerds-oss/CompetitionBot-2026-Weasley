@@ -12,6 +12,8 @@ public interface ClimbIO {
      */
     public default void climbDown() {}
 
+    public default void stop() {}
+
     public default boolean atLimit(boolean checkUpLimit) {
         return false;
     }

@@ -72,4 +72,8 @@ public class Drive implements Subsystem {
     public Pose2d getEstimatedPose() {
         return poseEstimator.getEstimatedPosition();
     }
+
+    public void addvision(Pose2d acceptedPose, double timestamp) {
+        poseEstimator.addVisionMeasurement(acceptedPose, timestamp);
+    }
 }

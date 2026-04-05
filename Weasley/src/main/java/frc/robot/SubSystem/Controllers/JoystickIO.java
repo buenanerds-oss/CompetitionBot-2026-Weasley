@@ -68,12 +68,12 @@ public class JoystickIO implements ControllerIO{
 
     @Override
     public double getDriveX() {
-        return -MathUtil.applyDeadband(joystick.getY(), 0.1);
+        return -MathUtil.applyDeadband(-joystick.getY(), 0.1);
     }
 
     @Override
     public double getDriveY() {
-        return - MathUtil.applyDeadband(joystick.getX(), 0.1);
+        return - MathUtil.applyDeadband(-joystick.getX(), 0.1);
     }
 
     @Override
@@ -83,12 +83,12 @@ public class JoystickIO implements ControllerIO{
 
     @Override
     public boolean startShooter() {
-        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) > 0.5;
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) < -0.75;
     }
 
     @Override
     public boolean startShooterInverted() {
-        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) < -0.5;
+        return joystick.getRawAxis(Axis.THROTTLE_MAIN.getAxis()) > 0.75;
     }
 
     @Override
@@ -109,6 +109,11 @@ public class JoystickIO implements ControllerIO{
     @Override
     public boolean climbDown() {
         return joystick.getRawButton(Buttons.B.getButton());
+    }
+
+    @Override
+    public boolean resetGyro() {
+        return joystick.getRawButtonPressed(Buttons.RESET.getButton());
     }
 
 }

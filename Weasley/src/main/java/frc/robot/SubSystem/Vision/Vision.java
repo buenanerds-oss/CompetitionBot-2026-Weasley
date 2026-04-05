@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -21,7 +22,8 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.SubSystem.Swerve.Drive;
 
 public class Vision implements VisionIO{
-    //ShuffleBoard:
+    //Adjustable:
+    double maxAmbiguity = 0.3;
 
     //loggables:
     List<PhotonPipelineResult>[] allPhotonResults;
@@ -76,13 +78,27 @@ public class Vision implements VisionIO{
             if (!latestResults[i].hasTargets()) continue;
 
             targets[i] = Optional.of(latestResults[i].getTargets());
+            
 
             estimators[i].addHeadingData(Timer.getTimestamp(), drive.getEstimatedPose().getRotation());
             EstimatedPoses[i] = estimators[i].estimatePnpDistanceTrigSolvePose(latestResults[i]);
 
             if (EstimatedPoses[i].isEmpty()) continue;
 
-            //TODO: more filtering before accepting a Pose;
+            // morefiltering before accepting a Pose;
+
+            boolean keepPose = true;
+            if (targets[i].get().size() != 0) keepPose = false; // must have target
+            else if (targets[i].get().size() == 1) {
+                for (PhotonTrackedTarget target : targets[i].get()) {
+                    if (target.getPoseAmbiguity() > maxAmbiguity) keepPose = false; // must be discernable
+                }
+            }
+
+                //must be in the field:
+            if (EstimatedPoses[i].get().estimatedPose.getY() < 0 && EstimatedPoses[i].get().estimatedPose.getY() > 8.07) keepPose = false;
+
+            if (keepPose) drive.addvision(EstimatedPoses[i].get().estimatedPose.toPose2d(), latestResults[i].getTimestampSeconds()); // can also use Timer.getFPGATimestamp() if current doesn't work
         }
     }
 

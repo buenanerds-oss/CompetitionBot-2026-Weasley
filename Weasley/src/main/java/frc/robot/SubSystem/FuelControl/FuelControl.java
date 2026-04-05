@@ -16,7 +16,7 @@ public class FuelControl{
     
     //for adjusting:
     double hopperOutEnabledTimeSec = 1;
-    double hopperOutDisabledTimeSec= 1;
+    double hopperOutDisabledTimeSec= 0.5;
 
     //logging:
     
@@ -31,8 +31,8 @@ public class FuelControl{
         this.shooter = new Shooter(shootermotor);
         hopperOutTimer = new Timer();
 
-        NerdLog.logDouble("Fuel Control/ Hopper out enabled timer", hopperOutDisabledTimeSec);
-        NerdLog.logDouble("Fuel Control/ Hopper out disnabled timer", hopperOutDisabledTimeSec);
+        NerdLog.logDouble("Fuel Control/ Hopper out enabled timer", hopperOutEnabledTimeSec);
+        NerdLog.logDouble("Fuel Control/ Hopper out disabled timer", hopperOutDisabledTimeSec);
     }
 
     public void shootShooter() {
@@ -65,10 +65,17 @@ public class FuelControl{
         else if (!hopperOutTimer.isRunning()) hopperOutTimer.start();
 
         if (hopperOutEnabled) hopper.hopperOut();
+        else hopper.forcesetVoltage(0.00);
         
     }
 
+    public void stopHopper() {
+        hopperOutEnabled = false;
+        hopper.forcesetVoltage(0.00);
+    }
+
     public void intake() {
+        hopperOutEnabled = false;
         if (shooter.isShooting()) hopper.hopperin();
     }
 
@@ -80,6 +87,8 @@ public class FuelControl{
             hopperOutTimer.stop();
             hopperOutTimer.reset();
         }
+
+        NerdLog.logDouble("Hopper out timer time", hopperOutTimer.get());
 
         hopperOutEnabledTimeSec = NerdLog.getdouble("Fuel Control/ Hopper out enabled timer");
         hopperOutDisabledTimeSec =  NerdLog.getdouble("Fuel Control/ Hopper out disabled timer");

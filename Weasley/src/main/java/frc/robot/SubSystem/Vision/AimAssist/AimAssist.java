@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import frc.robot.SubSystem.Swerve.Drive;
 import frc.robot.SubSystem.Vision.Vision;
 import frc.robot.SubSystem.Vision.VisionIO;
@@ -70,8 +71,8 @@ public class AimAssist {
                 
                 yawPerCam[i] = target.getYaw();
                 if (target.getPoseAmbiguity() > 0.2) continue;
-
-                   reccomendedHeading = degreesRobotFront[i] - target.getYaw();
+                   reccomendedHeading = Units.degreesToRadians(target.getYaw() - degreesRobotFront[i]);
+                   
                 }
             }
         }
