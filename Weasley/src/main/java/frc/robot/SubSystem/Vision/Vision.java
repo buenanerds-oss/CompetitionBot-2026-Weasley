@@ -52,7 +52,8 @@ public class Vision implements VisionIO{
         allPhotonResults = new List[cameras.length];
         estimators = new PhotonPoseEstimator[cameras.length];
         confirmedPoses = new Optional[cameras.length];
-        targets = new Optional[0];
+        targets = new Optional[cameras.length];
+        latestResults = new PhotonPipelineResult[cameras.length];
 
         for (int i = 0 ; i < estimators.length; i++ ) estimators[i] = new PhotonPoseEstimator(AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded), RobotToCameras[i]);
         periodic();

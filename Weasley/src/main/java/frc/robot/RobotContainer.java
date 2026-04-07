@@ -32,6 +32,7 @@ import frc.robot.SubSystem.Swerve.Gyro.GyroSim;
 import frc.robot.SubSystem.Swerve.Gyro.Pidgeon2IO;
 import frc.robot.SubSystem.Vision.Vision;
 import frc.robot.SubSystem.Vision.VisionIO;
+import frc.robot.SubSystem.Vision.AimAssist.AimAssist;
 
 public class RobotContainer {
   ControllerIO Controller = new JoystickIO(0);//XboxControllerIO(0);
@@ -44,6 +45,7 @@ public class RobotContainer {
   ClimbIO climb;
   GyroIO gyro;
   VisionIO vision;
+  AimAssist aiming;
 
   public RobotContainer() {
     NerdLog.startLog();
@@ -69,6 +71,7 @@ public class RobotContainer {
     swerve = new Drive(gyro, modules);
     fuelCrtl = new FuelControl(RobotMap.shooterMotor, RobotMap.hopperMotor);
     climb = new Climb(RobotMap.climbMotor);
+    aiming = new AimAssist(vision, new double[2]);
     AutoPicker.supplySubSystems(swerve, fuelCrtl,climb, vision, RobotMap.robotToCameras);
   }
 
@@ -79,13 +82,15 @@ public class RobotContainer {
     fuelCrtl.periodic();
     climb.periodic();
     vision.periodic();
+    aiming.periodic();
+    NerdLog.logDoubleArray("aiming Target Yaw", aiming.getYawsFromHub());
   }
 
   public void enabled() {
     
     NerdLog.logDouble("joystick X", Controller.getDriveX());
     NerdLog.logDouble("joystick y", Controller.getDriveY());
-    swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist());
+    swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist() * 2);
     if (Controller.startShooter()) fuelCrtl.shootShooter();
     else if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     else {fuelCrtl.stopShooting();}
