@@ -95,7 +95,6 @@ public class Hopper implements HopperIO{
         pidCrtl.setI(NerdLog.getdouble("Fuel Control/Hopper/ I"));
         pidCrtl.setD(NerdLog.getdouble("Fuel Control/Hopper/ D"));
         */
-        NerdLog.logDouble("The voltage We Want", requestedVoltage);
 
         speedControl.setSetpoint(requestedSpeed);
 

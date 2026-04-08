@@ -9,6 +9,7 @@ import java.util.ResourceBundle.Control;
 import org.photonvision.PhotonCamera;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,8 +31,10 @@ import frc.robot.SubSystem.Swerve.ModuleSIm;
 import frc.robot.SubSystem.Swerve.Gyro.GyroIO;
 import frc.robot.SubSystem.Swerve.Gyro.GyroSim;
 import frc.robot.SubSystem.Swerve.Gyro.Pidgeon2IO;
+import frc.robot.SubSystem.Vision.DriverCam;
 import frc.robot.SubSystem.Vision.Vision;
 import frc.robot.SubSystem.Vision.VisionIO;
+import frc.robot.SubSystem.Vision.AimAssist.AimAssist;
 
 public class RobotContainer {
   ControllerIO Controller = new JoystickIO(0);//XboxControllerIO(0);
@@ -44,6 +47,8 @@ public class RobotContainer {
   ClimbIO climb;
   GyroIO gyro;
   VisionIO vision;
+  AimAssist aiming;
+  DriverCam driveCam;
 
   public RobotContainer() {
     NerdLog.startLog();
@@ -55,7 +60,6 @@ public class RobotContainer {
         modules[i] = new Module(i, RobotMap.SwerveTurnMotors[i], RobotMap.SwerveDriveMotors[i]);
       }
       this.gyro = new Pidgeon2IO();
-      this.vision = new Vision(new PhotonCamera[] {RobotMap.c270Cam, RobotMap.nexigoCam}, RobotMap.robotToCameras, swerve);
     }
     else {
       for (int i = 0; i<=3; i++) {
@@ -69,7 +73,12 @@ public class RobotContainer {
     swerve = new Drive(gyro, modules);
     fuelCrtl = new FuelControl(RobotMap.shooterMotor, RobotMap.hopperMotor);
     climb = new Climb(RobotMap.climbMotor);
+
+    if (Robot.isReal()) this.vision = new Vision(new PhotonCamera[] {RobotMap.c270Cam, RobotMap.nexigoCam}, RobotMap.robotToCameras, swerve);
+    aiming = new AimAssist(vision, RobotMap.cameraDegreesFront);
+    
     AutoPicker.supplySubSystems(swerve, fuelCrtl,climb, vision, RobotMap.robotToCameras);
+    driveCam = new DriverCam(1920, 720, 30);
   }
 
   
@@ -79,13 +88,17 @@ public class RobotContainer {
     fuelCrtl.periodic();
     climb.periodic();
     vision.periodic();
+    aiming.periodic();
+    NerdLog.logDouble("reccomended heading", -aiming.getreccomendedHeading());
+
   }
 
   public void enabled() {
     
     NerdLog.logDouble("joystick X", Controller.getDriveX());
     NerdLog.logDouble("joystick y", Controller.getDriveY());
-    swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist());
+    if (Controller.getAimAssistAdjustment()) swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist() - aiming.getreccomendedHeading());
+    else swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist() * 2);
     if (Controller.startShooter()) fuelCrtl.shootShooter();
     else if (Controller.startShooterInverted()) fuelCrtl.shootShooterInverted();
     else {fuelCrtl.stopShooting();}
@@ -96,7 +109,6 @@ public class RobotContainer {
     else if (Controller.climbDown()) climb.climbDown();
     else climb.stop();
     if (Controller.resetGyro()) gyro.reset();
-    
   }
 
   public void disabledPeriodic() {
