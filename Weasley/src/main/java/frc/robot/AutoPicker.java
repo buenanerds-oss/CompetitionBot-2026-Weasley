@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.dyn4j.geometry.Transform;
+import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.utils.*;
 
@@ -29,6 +31,7 @@ import frc.robot.SubSystem.Swerve.Drive;
 import frc.robot.SubSystem.Swerve.SwerveConstants;
 import frc.robot.SubSystem.Vision.Vision;
 import frc.robot.SubSystem.Vision.VisionIO;
+import frc.robot.SubSystem.Vision.AimAssist.AimAssist;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;;
 
@@ -44,6 +47,7 @@ public class AutoPicker {
     private static FuelControl fuelCrtl;
     private static ClimbIO climb;
     private static VisionIO vision;
+    private static AimAssist aimAssist;
     private static ChassisSpeeds DesiredChassisSpeeds;
     private static Transform3d[] robotToCamera; 
 
@@ -54,16 +58,17 @@ public class AutoPicker {
      * @param climb
      * @param vision
      */
-    public static void supplySubSystems(Drive subdrive, FuelControl subfuelCrtl, ClimbIO subclimb, VisionIO subvision, Transform3d[] subrobotToCamera) {
+    public static void supplySubSystems(Drive subdrive, FuelControl subfuelCrtl, ClimbIO subclimb, VisionIO subvision,AimAssist subaimAssist, Transform3d[] subrobotToCamera) {
         drive  = subdrive;
         fuelCrtl = subfuelCrtl;
         climb = subclimb;
         vision = subvision;
+        aimAssist = subaimAssist;
         robotToCamera = subrobotToCamera;   
     }
 
     public static enum AutoRoutines {
-        SHOOT_BALLS, CLIMB, SHOOT_BALLS_AND_CLIMB, SHOOT_BALLS_AND_COLLECT_DEPOSITE, SHOOT_BALLS_AND_GO_MIDDLE 
+        SHOOT_BALLS, SHOOT_BALLS_AND_CLIMB, RIGHT_OVER_BUMP, LEFT_OVER_BUMP, CRY
     }
 
     public static void pickAuto(AutoRoutines routine) {
@@ -71,42 +76,125 @@ public class AutoPicker {
         fuelCrtl == null ||
         climb == null ||
         vision == null ||
+        aimAssist == null ||
         robotToCamera == null ||
         routine == null) return;
         switch (routine) {
-            case SHOOT_BALLS: ShootBalls(); break;
-            case CLIMB: findClimbRack(); Climb(); break;
-            case SHOOT_BALLS_AND_CLIMB:
-                drive.zeroOutModules();
-                Timer backUp = new Timer();
-                backUp.start();
-                while (!backUp.hasElapsed(1.25)) drive.move(-0.25, 0, 0);
-                backUp.stop();
-                Timer shootTimer = new Timer();
-                shootTimer.start();
-                while (!shootTimer.hasElapsed(8)) {
+            case SHOOT_BALLS: 
+            drive.zeroOutModules();
+                Timer backUpshoot = new Timer();
+                backUpshoot.start();
+                while (!backUpshoot.hasElapsed(1.25)) drive.move(-0.25, 0, 0);
+                backUpshoot.stop();
+                Timer shootTimerShoot = new Timer();
+                shootTimerShoot.start();
+                while (!shootTimerShoot.hasElapsed(8)) {
+                    drive.move(0, 0, -aimAssist.getreccomendedHeading());
                     fuelCrtl.shootShooter();
                     fuelCrtl.outtake();
                     climb.climbDown();
                 }
+                shootTimerShoot.stop();
+
+                break;
+
+
+            case SHOOT_BALLS_AND_CLIMB:
+                drive.zeroOutModules();
+                Timer backUp = new Timer();
+                backUp.start();
+                while (!backUp.hasElapsed(2.25))  {
+                    drive.move(-0.25, 0, 0); 
+                    climb.climbDown();
+                }
+                backUp.stop();
+                Timer shootTimer = new Timer();
+                shootTimer.start();
+                while (!shootTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) {
+                    drive.move(0, 0, 0);
+                    fuelCrtl.shootShooter();
+                    fuelCrtl.outtake();
+                }
                 shootTimer.stop();
+                fuelCrtl.stopShooting();
+                fuelCrtl.stopHopper();
                 // distance from wall to hub - (distance from wall to tower  + (robtolength - camera distance from front))
-                driveBackToTower(-Units.inchesToMeters(120.75) - Units.inchesToMeters(19.5));
+                driveBackToTower(Units.inchesToMeters(120.75) - Units.inchesToMeters(19.5));
+                drive.move(0, 0, 0);
                 Timer climbUpTimer = new Timer();
                 climbUpTimer.start();
                 while (!climbUpTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) climb.climbUp();
                 climbUpTimer.stop();
+
                 break;
-            case SHOOT_BALLS_AND_COLLECT_DEPOSITE: break;
-            case SHOOT_BALLS_AND_GO_MIDDLE: break;
+
+                
+                case RIGHT_OVER_BUMP:
+                    drive.zeroOutModules();
+                    Timer forwardTimer = new Timer();
+                    forwardTimer.start();
+                    while (!forwardTimer.hasElapsed(2)) drive.move(1, 0, 0);
+                    Timer moveRight = new Timer();
+                    moveRight.start();
+                    while (!moveRight.hasElapsed(3)) drive.move(0.125, -0.25, 0);
+                    drive.zeroOutModules();
+                    Timer climbertimer = new Timer();
+                    climbertimer.start();
+                    while (!climbertimer.hasElapsed(5)) climb.climbDown();
+                    climbertimer.stop();
+
+                    break;
+
+                case LEFT_OVER_BUMP :
+                drive.zeroOutModules();
+                Timer forwadsTimer = new Timer();
+                forwadsTimer.start();
+                while (!forwadsTimer.hasElapsed(2)) drive.move(1, 0, 0);
+                Timer moveLeft = new Timer();
+                moveLeft.start();
+                while (!moveLeft.hasElapsed(3)) drive.move(0.125, 0.25, 0);
+                moveLeft.stop();
+                drive.zeroOutModules();
+                Timer setClimber = new Timer();
+                setClimber.start();
+                while (setClimber.hasElapsed(5)) climb.climbDown();
+                setClimber.stop();
+
+                break;
+
+
+                case CRY: return;
+
+
+                default: return;
         }
 
     }
 
+    /**
+     * 
+     * @param desiredDistanceFromHubMeters
+     */
     private static void driveBackToTower(double desiredDistanceFromHubMeters) {
         //first get distance from hub using vision, then drive until at the desired distance from the hub:
+        PhotonCamera intakeCam = RobotMap.Intakecam;
+        PhotonTrackedTarget climbTarget = null;
         double distanceFromHubMeters = 0;
         while (distanceFromHubMeters < desiredDistanceFromHubMeters) {
+
+            //get reccomened heading from intake cam: 11 in from front
+            //16 && 32
+            double reccomendedHeading = 0;
+            List<PhotonPipelineResult> allresults = intakeCam.getAllUnreadResults();
+            PhotonPipelineResult latestResult = allresults.get(allresults.size()-1);
+            for (PhotonTrackedTarget target : latestResult.getTargets()) {
+                if ((target.getFiducialId() == 16 || target.getFiducialId() == 32) && target.getPoseAmbiguity() < 0.3) {
+                    reccomendedHeading = Units.degreesToRadians(target.getYaw() - 5.00);
+                    climbTarget = target;
+                }
+            }
+
+
             Optional<List<PhotonTrackedTarget>>[] targets = vision.getTargets();
             for (int i = 0; i < targets.length; i++ ) {
                 if (targets[i].isEmpty()) continue;
@@ -120,15 +208,22 @@ public class AutoPicker {
                     target.getFiducialId() == 25 ||
                     target.getFiducialId() == 26) distanceFromHubMeters = PhotonUtils.calculateDistanceToTargetMeters(
                           robotToCamera[i].getZ(),
-                          44.25, 
+                          Units.inchesToMeters(44.25), 
                           robotToCamera[i].getRotation().getY(),
                           target.getPitch());
+                    else if (climbTarget.getPoseAmbiguity()  < 0.35) { // i want this to be slightly more tolerable than normal
+                        distanceFromHubMeters = Units.inchesToMeters(158.6) - PhotonUtils.calculateDistanceToTargetMeters(
+                                                 Units.inchesToMeters(21.5),
+                                                 Units.inchesToMeters(21.75),
+                                                 Units.degreesToRadians(0),
+                                                 climbTarget.getPitch());
+                    }
                 }
             }
 
             //set drive proportional to the distance from the hub:
-            double driveX = -distanceFromHubMeters/Units.inchesToMeters(130); //scaled with the distance from hub to the wall
-            drive.move(driveX, 0, 0);
+            double driveX = -(125 -distanceFromHubMeters)/Units.inchesToMeters(130); //scaled with the distance from hub to the wall
+            drive.move(driveX, 0, -reccomendedHeading);
         }
     }
 

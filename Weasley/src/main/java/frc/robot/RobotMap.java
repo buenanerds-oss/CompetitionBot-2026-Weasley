@@ -41,9 +41,10 @@ public class RobotMap {
 
     public static PhotonCamera c270Cam = new PhotonCamera("C270");
     public static PhotonCamera nexigoCam = new PhotonCamera("NEXIGO");
+    public static PhotonCamera Intakecam = new PhotonCamera("intakeCam");
     public static Transform3d robotToCameras[] = {
-        new Transform3d(Units.inchesToMeters(7.5), 0, 0, new Rotation3d(-20,0,0)), //c270
-        new Transform3d(Units.inchesToMeters(7.5), 0, 0, new Rotation3d(25,0,0)) // nexigo
+        new Transform3d(Units.inchesToMeters(7.5), 0, Units.inchesToMeters(10), new Rotation3d(-20,0,0)), //c270
+        new Transform3d(Units.inchesToMeters(7.5), 0, Units.inchesToMeters(10), new Rotation3d(25,0,0)) // nexigo
     };
 
     public static double[] cameraDegreesFront = {-25.15, 19.19}; 

@@ -15,14 +15,22 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  int routine;
 
   public Robot() {
     PortForwarder.add(5800, "photonvision.local", 5800);
      m_robotContainer = new RobotContainer();
+     routine = 0;
+     NerdLog.logDouble("Auto Routine", 0);
+
+     
   }
 
   @Override
   public void robotPeriodic() {
+    //request Auto:
+    routine = (int) (NerdLog.getdouble("Auto Routine") + 0.5);
+
     m_robotContainer.roboPeriodic();
   }
 
@@ -39,7 +47,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS_AND_CLIMB); // the only auto we actually have
+    switch (routine) {
+      case 1: AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS); break;
+      case 2: AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS_AND_CLIMB);
+      case 3: AutoPicker.pickAuto(AutoRoutines.LEFT_OVER_BUMP); break;
+      case 4: AutoPicker.pickAuto(AutoRoutines.RIGHT_OVER_BUMP); break;
+      default: AutoPicker.pickAuto(AutoRoutines.CRY);
+     }
+
+
+    //AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS_AND_CLIMB); // the only auto we actually have
   }
 
   @Override

@@ -11,6 +11,8 @@ import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.SubSystem.Logging.NerdLog;
 
@@ -21,6 +23,7 @@ public class Shooter implements ShooterIO {
     double targetSpeedRadPerSec = 400;
     double RequestedVolts = 8.45;
     double CrtlTolerance = 50;
+    Timer autoTime;
 
 
     //logging:
@@ -42,6 +45,7 @@ public class Shooter implements ShooterIO {
         this.encoder = motor.getEncoder();
         bangCrtl = new BangBangController();
         bangCrtl.setTolerance(CrtlTolerance);
+        autoTime = new Timer();
 
         NerdLog.logDouble("Fuel Control/Shooter/ requestedVolts", RequestedVolts);
         NerdLog.logDouble("Fuel Control/Shooter/ target Speed Rad Per Sec", targetSpeedRadPerSec);
@@ -56,12 +60,14 @@ public class Shooter implements ShooterIO {
     
     @Override
     public void shoot(boolean invert) {
+        NerdLog.logBooleanVariable("is trying to shoot in shooter", true);
         if (!invert) {
 
-            
+            NerdLog.logDouble("Fuel Control/Shooter/planned Output", 8.45 * bangCrtl.calculate(velocityRadPerSec));
             //bang bang control:
             bangCrtl.setSetpoint(targetSpeedRadPerSec);
-            motor.setVoltage(RequestedVolts * bangCrtl.calculate(velocityRadPerSec));
+            motor.setVoltage(8.45 * bangCrtl.calculate(velocityRadPerSec));
+            NerdLog.logDouble("Fuel Control/Shooter/ bang crtl output", bangCrtl.calculate(velocityRadPerSec));
             
 
             /*
@@ -97,6 +103,13 @@ public class Shooter implements ShooterIO {
 
     @Override
     public boolean isShooting() {
+        if (DriverStation.isAutonomous()) {
+           autoTime.start();
+           if (autoTime.hasElapsed(2)) {
+            autoTime.stop();
+            return true;
+           }
+        }
         return bangCrtl.atSetpoint();//velocityRadPerSec > targetSpeedRadPerSec - bangCrtlTolerance;//bangCrtl.atSetpoint();//Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
     }
 
@@ -107,10 +120,12 @@ public class Shooter implements ShooterIO {
         NerdLog.logBooleanVariable("Fuel Control/Shooter/ Shooter is Shooting", isShooting());
         NerdLog.logBooleanVariable("Fuel Control/Shooter/ Shooter is Above set Speed", velocityRadPerSec > targetSpeedRadPerSec);
         NerdLog.logDouble("Fuel Control/Shooter/ Encoder Velocity RadPerSec", velocityRadPerSec);
+        NerdLog.logDouble("Fuel Control//Shooter/ applied voltage", motor.getAppliedOutput() * motor.getBusVoltage());
+        NerdLog.logDouble("Fuel Control//Shooter/ bus voltage", motor.getBusVoltage());
 
 
         RequestedVolts = NerdLog.getdouble("Fuel Control/Shooter/ requestedVolts");
-        targetSpeedRadPerSec= NerdLog.getdouble("Fuel Control/Shooter/ target Speed Rad Per Sec");
+       targetSpeedRadPerSec= NerdLog.getdouble("Fuel Control/Shooter/ target Speed Rad Per Sec");
         CrtlTolerance = NerdLog.getdouble("Fuel Control/Shooter/ control Tolerance");
         /*
         pidCrtl.setP(NerdLog.getdouble("Fuel Control/Shooter/ P"));

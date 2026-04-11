@@ -24,18 +24,20 @@ public class FuelControl{
     HopperIO hopper;
     ShooterIO shooter;
     Timer hopperOutTimer;
-    boolean hopperOutEnabled = false;;
+    boolean hopperOutEnabled;
 
     public FuelControl(SparkMax shootermotor, SparkMax hopperMotor) {
         this.hopper = new Hopper(hopperMotor);
         this.shooter = new Shooter(shootermotor);
         hopperOutTimer = new Timer();
+        hopperOutEnabled = false;
 
         NerdLog.logDouble("Fuel Control/ Hopper out enabled timer", hopperOutEnabledTimeSec);
         NerdLog.logDouble("Fuel Control/ Hopper out disabled timer", hopperOutDisabledTimeSec);
     }
 
     public void shootShooter() {
+        NerdLog.logBooleanVariable("is trying to shoot in fuel crtl", true);
         shooter.shoot(false);
     }
 
@@ -83,12 +85,12 @@ public class FuelControl{
         shooter.periodic();
         hopper.periodic();
 
-         if (hopperOutTimer.hasElapsed(3)) { // 3 is arbitrary, but i doubt we'd run either of the hopper out times for more than 2 secs
+         if (hopperOutTimer.hasElapsed(5)) { // 3 is arbitrary, but i doubt we'd run either of the hopper out times for more than 2 secs
             hopperOutTimer.stop();
             hopperOutTimer.reset();
         }
 
-        NerdLog.logDouble("Hopper out timer time", hopperOutTimer.get());
+        NerdLog.logDouble("Fuel Control/Hopper out timer time", hopperOutTimer.get());
 
         hopperOutEnabledTimeSec = NerdLog.getdouble("Fuel Control/ Hopper out enabled timer");
         hopperOutDisabledTimeSec =  NerdLog.getdouble("Fuel Control/ Hopper out disabled timer");
