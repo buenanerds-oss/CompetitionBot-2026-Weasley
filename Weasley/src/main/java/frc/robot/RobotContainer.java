@@ -41,19 +41,21 @@ public class RobotContainer {
 
   final double driveSpeedFactor = 1;
 
-
+//subsystems:
   Drive swerve;
   FuelControl fuelCrtl;
   ClimbIO climb;
   GyroIO gyro;
   VisionIO vision;
   AimAssist aiming;
-  DriverCam driveCam;
+  //DriverCam driveCam; never worked, photonvision got in the way
 
   public RobotContainer() {
+    //logging:
     NerdLog.startLog();
    GroupLogger.startGroupLogger();
    
+   //swerve configure:
    ModuleIO[] modules = new ModuleIO[4];
     if (Robot.isReal()) {
       for (int i = 0; i <= 3; i++) {
@@ -77,6 +79,7 @@ public class RobotContainer {
     if (Robot.isReal()) this.vision = new Vision(new PhotonCamera[] {RobotMap.c270Cam, RobotMap.nexigoCam}, RobotMap.robotToCameras, swerve);
     aiming = new AimAssist(vision, RobotMap.cameraDegreesFront);
     
+    //makes sure that auto can do stuff
     AutoPicker.supplySubSystems(swerve, fuelCrtl, climb, vision, aiming, RobotMap.robotToCameras);
     //driveCam = new DriverCam(1920, 720, 30);
   }
@@ -89,14 +92,16 @@ public class RobotContainer {
     climb.periodic();
     vision.periodic();
     aiming.periodic();
-    NerdLog.logDouble("reccomended heading", -aiming.getreccomendedHeading());
-
+    NerdLog.logDouble("reccomended heading", -aiming.getreccomendedHeading()); // aiming was inverted, oops
   }
 
   public void enabled() {
     
+    //log inputs:
     NerdLog.logDouble("joystick X", Controller.getDriveX());
     NerdLog.logDouble("joystick y", Controller.getDriveY());
+
+    //Controls:
     if (Controller.getAimAssistAdjustment()) swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist() - aiming.getreccomendedHeading());
     else swerve.move(Controller.getDriveX(), Controller.getDriveY(), Controller.getDriveTwist() * 2);
     if (Controller.startShooter()) fuelCrtl.shootShooter();

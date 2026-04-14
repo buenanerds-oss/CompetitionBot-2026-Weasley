@@ -36,11 +36,13 @@ public class FuelControl{
         NerdLog.logDouble("Fuel Control/ Hopper out disabled timer", hopperOutDisabledTimeSec);
     }
 
+    
     public void shootShooter() {
         NerdLog.logBooleanVariable("is trying to shoot in fuel crtl", true);
         shooter.shoot(false);
     }
 
+    /** shoots the motor backwards, for unjamming */
     public void shootShooterInverted() {
         if (!shooter.isShooting()) shooter.shoot(true);
     }
@@ -50,7 +52,7 @@ public class FuelControl{
     }
 
 
-    //TODO: test if you can have it automatically start shooter when you set the hopper
+    /** only outtakes when the shooter motor is started and in specific intervals */
     public void outtake() {
         if (!shooter.isShooting()) {
             return;

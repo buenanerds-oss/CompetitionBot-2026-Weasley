@@ -69,14 +69,26 @@ public class Drive implements Subsystem {
         for (ModuleIO module : modules) module.periodic();
     }
 
+    /**
+     * puts the modules facing straight forward with no speed
+     */
     public void zeroOutModules() {
         for (ModuleIO module: modules) module.setDesiredSwerveState(new SwerveModuleState());
     }
 
+    /**
+     * returns where the robot thinks it's at
+     * @return
+     */
     public Pose2d getEstimatedPose() {
         return poseEstimator.getEstimatedPosition();
     }
 
+    /**
+     * the add vision measurements to the drive estimator,
+     * @param acceptedPose - the pose to give the estimator
+     * @param timestamp - time since the game started
+     */
     public void addvision(Pose2d acceptedPose, double timestamp) {
         poseEstimator.addVisionMeasurement(acceptedPose, timestamp);
     }

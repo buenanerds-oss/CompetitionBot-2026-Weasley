@@ -52,11 +52,11 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
         this.index = index;
         this.turnMotor = turnMotor;
         this.driveMotor = driveMotor;
-        this.AbsEncoder = RobotMap.swerveAbsEncoders[index];
+        this.AbsEncoder = RobotMap.swerveAbsEncoders[index]; // the absolute encoder is how we know where the modules are facing
 
 
         //from the ModuleMotorConfig Class
-        if (!DriverStation.isEnabled()) {
+        if (!DriverStation.isEnabled()) { // I regret this, we could've made this a singular configureModule() method
         configureTurnMotor(turnMotor);
         configureDriveMotor(driveMotor);
         }
@@ -68,7 +68,7 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
         this.currentswervePosition = new SwerveModulePosition(driveMotor.getEncoder().getPosition() * SwerveConstants.wheelRadiusMeters, new Rotation2d(turnMotor.getEncoder().getPosition()));
        
 
-        //prevents initialization issues
+        //prevents initialization issues:
         turnAmps = 0;
         turnVolts = 0;
         driveAmps = 0; 
@@ -78,7 +78,7 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
         //PID initialization:
         drivePID = new PIDController(ModuleMotorConfig.DRIVE_P, ModuleMotorConfig.DRIVE_I, ModuleMotorConfig.DRIVE_D);
         turnPID = new PIDController(ModuleMotorConfig.TURN_P, ModuleMotorConfig.TURN_I, ModuleMotorConfig.TURN_D);
-
+        //the PId controller needs to know its a circle
         turnPID.enableContinuousInput(0, 2* Math.PI);
         turnPID.setTolerance(0.2);
         
@@ -87,16 +87,17 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
     public void setDesiredSwerveState(SwerveModuleState desiredState) {
         desiredState.optimize(new Rotation2d(currentSwerveState.angle.getRadians()));// ensures the turning setpoint takes the most effecient route
         desiredState.cosineScale(new Rotation2d(currentSwerveState.angle.getRadians()));// prevents undesired rotation or translation
-        this.desiredState = desiredState;
+        //manual cosine scaling because the abs encoder doesnt want to work for the scaling:
+        //desiredState.speedMetersPerSecond *= Math.cos(turnPID.getError());  // this is an alternative
+        this.desiredState = desiredState; // its nice to know what we want the module to look like
 
         
-        //turning
+        //turning:
+
             turnPID.setSetpoint(desiredState.angle.getRadians());
             turnMotor.setVoltage(turnPID.calculate(currentSwerveState.angle.getRadians()));
           
-        //Driving
-            //manual cosine scaling because the abs encoder doesnt want to work for the scaling:
-            //desiredState.speedMetersPerSecond *= Math.cos(turnPID.getError()); 
+        //Driving:
       
             driveMotor.setVoltage(-desiredState.speedMetersPerSecond*8); // was *5
         
@@ -113,13 +114,14 @@ public class Module extends ModuleMotorConfig implements ModuleIO {
     }
 
     @Override
-    public void forceSetVoltage(double turnVolts, double driveVolts) {
+    public void forceSetVoltage(double turnVolts, double driveVolts) { // good for hard stops and getting all the modules to do something
         driveMotor.setVoltage(driveVolts);
         turnMotor.setVoltage(turnVolts);
     }
 
     @Override
     public void periodic() {
+        // I NEED TO KNOW EVERYTHING!!!!!
         GroupLogger.logDoubleGroup("abs Encode readings", AbsEncoder.get(), index, 4);
         GroupLogger.logStructGroup("Drive/Modules/Swerve Module States", currentSwerveState, SwerveModuleState.struct, index, 4);
         GroupLogger.logDoubleGroup("Drive/Modules/Swerve Module Turn Amps", turnAmps, index, 4);

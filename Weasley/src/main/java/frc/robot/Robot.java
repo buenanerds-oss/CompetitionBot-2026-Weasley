@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
   int routine;
 
   public Robot() {
+    //possible fix if photonvision Web GUI doesn't load during competition
     PortForwarder.add(5800, "photonvision.local", 5800);
      m_robotContainer = new RobotContainer();
      routine = 0;
@@ -47,12 +48,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+
+    //the auto is chosen the moment autonomus starts
     switch (routine) {
       case 1: AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS); break;
       case 2: AutoPicker.pickAuto(AutoRoutines.SHOOT_BALLS_AND_CLIMB);
       case 3: AutoPicker.pickAuto(AutoRoutines.LEFT_OVER_BUMP); break;
       case 4: AutoPicker.pickAuto(AutoRoutines.RIGHT_OVER_BUMP); break;
-      default: AutoPicker.pickAuto(AutoRoutines.CRY);
+      default: AutoPicker.pickAuto(AutoRoutines.CRY); break;
      }
 
 

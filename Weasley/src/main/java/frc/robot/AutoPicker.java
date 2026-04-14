@@ -67,6 +67,7 @@ public class AutoPicker {
         robotToCamera = subrobotToCamera;   
     }
 
+    /** the available autos: */
     public static enum AutoRoutines {
         SHOOT_BALLS, SHOOT_BALLS_AND_CLIMB, RIGHT_OVER_BUMP, LEFT_OVER_BUMP, CRY
     }
@@ -81,15 +82,16 @@ public class AutoPicker {
         routine == null) return;
         switch (routine) {
             case SHOOT_BALLS: 
-            drive.zeroOutModules();
+            drive.zeroOutModules(); //start modules straight
                 Timer backUpshoot = new Timer();
                 backUpshoot.start();
-                while (!backUpshoot.hasElapsed(1.25)) drive.move(-0.25, 0, 0);
+                while (!backUpshoot.hasElapsed(1.25)) drive.move(-0.25, 0, 0); // back up enough to see apriltags
                 backUpshoot.stop();
                 Timer shootTimerShoot = new Timer();
                 shootTimerShoot.start();
+
                 while (!shootTimerShoot.hasElapsed(8)) {
-                    drive.move(0, 0, -aimAssist.getreccomendedHeading());
+                    drive.move(0, 0, -aimAssist.getreccomendedHeading()); // aim towards target
                     fuelCrtl.shootShooter();
                     fuelCrtl.outtake();
                     climb.climbDown();
@@ -100,17 +102,18 @@ public class AutoPicker {
 
 
             case SHOOT_BALLS_AND_CLIMB:
+                //our main Auto:
                 drive.zeroOutModules();
                 Timer backUp = new Timer();
                 backUp.start();
-                while (!backUp.hasElapsed(2.25))  {
+                while (!backUp.hasElapsed(2.25))  { // move to see apriltags
                     drive.move(-0.25, 0, 0); 
                     climb.climbDown();
                 }
                 backUp.stop();
                 Timer shootTimer = new Timer();
                 shootTimer.start();
-                while (!shootTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) {
+                while (!shootTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) { // shoot balls
                     drive.move(0, 0, 0);
                     fuelCrtl.shootShooter();
                     fuelCrtl.outtake();
@@ -119,11 +122,11 @@ public class AutoPicker {
                 fuelCrtl.stopShooting();
                 fuelCrtl.stopHopper();
                 // distance from wall to hub - (distance from wall to tower  + (robtolength - camera distance from front))
-                driveBackToTower(Units.inchesToMeters(120.75) - Units.inchesToMeters(19.5));
-                drive.move(0, 0, 0);
+                driveBackToTower(Units.inchesToMeters(120.75) - Units.inchesToMeters(19.5)); //go to the tower
+                drive.move(0, 0, 0); //stop when @ tower
                 Timer climbUpTimer = new Timer();
                 climbUpTimer.start();
-                while (!climbUpTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) climb.climbUp();
+                while (!climbUpTimer.hasElapsed(8) && DriverStation.isAutonomousEnabled()) climb.climbUp(); // the climbing part
                 climbUpTimer.stop();
 
                 break;
@@ -133,14 +136,14 @@ public class AutoPicker {
                     drive.zeroOutModules();
                     Timer forwardTimer = new Timer();
                     forwardTimer.start();
-                    while (!forwardTimer.hasElapsed(2)) drive.move(1, 0, 0);
+                    while (!forwardTimer.hasElapsed(2)) drive.move(1, 0, 0); // move forward over bump
                     Timer moveRight = new Timer();
                     moveRight.start();
-                    while (!moveRight.hasElapsed(3)) drive.move(0.125, -0.25, 0);
-                    drive.zeroOutModules();
+                    while (!moveRight.hasElapsed(3)) drive.move(0.125, -0.25, 0); // move to side
+                    drive.zeroOutModules(); // stop and zero out modules
                     Timer climbertimer = new Timer();
                     climbertimer.start();
-                    while (!climbertimer.hasElapsed(5)) climb.climbDown();
+                    while (!climbertimer.hasElapsed(5)) climb.climbDown(); // set climb down to avoid blocking shooter
                     climbertimer.stop();
 
                     break;
@@ -149,21 +152,21 @@ public class AutoPicker {
                 drive.zeroOutModules();
                 Timer forwadsTimer = new Timer();
                 forwadsTimer.start();
-                while (!forwadsTimer.hasElapsed(2)) drive.move(1, 0, 0);
+                while (!forwadsTimer.hasElapsed(2)) drive.move(1, 0, 0); // move over bump
                 Timer moveLeft = new Timer();
                 moveLeft.start();
-                while (!moveLeft.hasElapsed(3)) drive.move(0.125, 0.25, 0);
+                while (!moveLeft.hasElapsed(3)) drive.move(0.125, 0.25, 0); // move to the side
                 moveLeft.stop();
-                drive.zeroOutModules();
+                drive.zeroOutModules(); // stop and zero out modules
                 Timer setClimber = new Timer();
                 setClimber.start();
-                while (setClimber.hasElapsed(5)) climb.climbDown();
+                while (setClimber.hasElapsed(5)) climb.climbDown(); //  set climb out of the way to shoot
                 setClimber.stop();
 
                 break;
 
 
-                case CRY: return;
+                case CRY: return; // does nothing more for humor than anything
 
 
                 default: return;
@@ -173,7 +176,7 @@ public class AutoPicker {
 
     /**
      * 
-     * @param desiredDistanceFromHubMeters
+     * @param desiredDistanceFromHubMeters // distance as measured from field
      */
     private static void driveBackToTower(double desiredDistanceFromHubMeters) {
         //first get distance from hub using vision, then drive until at the desired distance from the hub:
@@ -185,6 +188,7 @@ public class AutoPicker {
 
             //get reccomened heading from intake cam: 11 in from front
             //16 && 32
+            //also gets the distance from the climb target tag, so that we can approach when hub tags aren't visable
             double reccomendedHeading = 0;
             List<PhotonPipelineResult> allresults = intakeCam.getAllUnreadResults();
             PhotonPipelineResult latestResult = allresults.get(allresults.size()-1);

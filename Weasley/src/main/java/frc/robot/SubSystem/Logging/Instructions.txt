@@ -21,6 +21,11 @@ logVariable(var variable) {
     will run variable into the logs and also the networktables 
 }
 
+getvariable() {
+    forDashboard usage. 
+    recommend using the logvariable() method in the initialization, then putting the getter in a periodic function
+}
+
 using annotations {
     
 }

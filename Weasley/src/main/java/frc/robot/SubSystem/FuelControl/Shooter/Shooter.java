@@ -103,6 +103,8 @@ public class Shooter implements ShooterIO {
 
     @Override
     public boolean isShooting() {
+
+        //encoder didn't work during auto, so this fixed it
         if (DriverStation.isAutonomous()) {
             RequestedVolts = 9.5;
            autoTime.start();
@@ -111,6 +113,8 @@ public class Shooter implements ShooterIO {
             return true;
            }
         }
+
+
         RequestedVolts = 8.45;
         return bangCrtl.atSetpoint();//velocityRadPerSec > targetSpeedRadPerSec - bangCrtlTolerance;//bangCrtl.atSetpoint();//Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
     }
@@ -137,7 +141,7 @@ public class Shooter implements ShooterIO {
 
     }
 
-    //hopper uses same config
+    //hopper uses same config:
     private void configureMotor(boolean inverted) {
         SparkMaxConfig config = new SparkMaxConfig();
          config.inverted(inverted)

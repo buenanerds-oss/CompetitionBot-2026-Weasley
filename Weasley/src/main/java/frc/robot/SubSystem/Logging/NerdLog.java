@@ -77,6 +77,13 @@ public class NerdLog {
     }
 
 
+    /**
+     * logs the variable to the network tables
+     * @param <T> - a type that is StructSerializable
+     * @param name - the name that presents on the network tables, you can further organize by using "folder/folder/name" type of stucture
+     * @param variable - the variable we are logging
+     * @param variableStruct - VarableClass.struct
+     */
     public static <T extends StructSerializable> void logStructvariable(String name, T variable, Struct variableStruct) {
         // if the variable doesn't already exist, add it.
         if (/*!structVariables.containsKey(name) &&*/ !structPublishers.containsKey(name)) {
@@ -88,6 +95,13 @@ public class NerdLog {
         structPub.set(variable);
     }
 
+    /**
+     * logs the struct variable to the network tables
+     * @param <T> - type that is StructSerializable
+     * @param name - the name that presents on the dashboard or network table, you can further organize by using "folder/folder/name" type of stucture
+     * @param variables - the array you are logging
+     * @param variableStruct - VariableClass.struct
+     */
     public static <T extends StructSerializable> void LogStructArray(String name, T[] variables, Struct variableStruct) {
         if (!structArrayPublishers.containsKey(name)) {
             StructArrayPublisher<T> structPub = baseTable.getStructArrayTopic(name, variableStruct).publish();
@@ -97,6 +111,11 @@ public class NerdLog {
         structPub.set(variables);
     }
 
+    /**
+     * logs a double to the network tables
+     * @param name - the name as presented on network tables, you can further organize by using "folder/folder/name" type of stucture
+     * @param variable
+     */
     public static void logDouble(String name, double variable) {
         if (!doubleEntries.containsKey(name)) {
             DoubleEntry dubPub = baseTable.getDoubleTopic(name).getEntry(variable);
@@ -109,7 +128,7 @@ public class NerdLog {
 
     /**
      * make sure the variable has at least been given a initial logvar() before using this method
-     * @param name - the name of the variable you are getting
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
      * @return - the value as presented on a dashboard
      */
     public static double getdouble(String name) {
@@ -118,6 +137,11 @@ public class NerdLog {
         return doubleEntries.get(name).get();
     }
 
+    /**
+     * logs the array of doubles on the network tables
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @param variable - the array you are logging
+     */
     public static void logDoubleArray(String name, double[] variable) {
         if (!doubleArrayEntries.containsKey(name)) {
             DoubleArrayEntry dubPub = baseTable.getDoubleArrayTopic(name).getEntry(variable);
@@ -128,12 +152,22 @@ public class NerdLog {
         dubPub.set(variable);
     }
 
+    /**
+     * make sure the variable has at least been given a initial logvar() before using this method
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @return - the value as presented on a dashboard
+     */
     public static double[] getDoubleArray(String name) {
         if (!doubleArrayEntries.containsKey(name)) return new double[0];
 
         return doubleArrayEntries.get(name).get();
     }
 
+    /**
+     * makes the value appear on network tables
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @param variable - the value your loggins
+     */
     public static void logBooleanVariable(String name, boolean variable) {
         if (!booleanEntries.containsKey(name)) {
             BooleanEntry boolPub = baseTable.getBooleanTopic(name).getEntry(variable);
@@ -144,12 +178,22 @@ public class NerdLog {
         boolPub.set(variable);
     }
 
+    /**
+     * make sure the variable has at least been given a initial logvar() before using this method
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @return - the value as presented on a dashboard
+     */
     public static Boolean getBoolean(String name) {
         if (!booleanEntries.containsKey(name)) return false;
 
         return booleanEntries.get(name).get();
     }
 
+    /**
+     * logs an array of booleans
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @param variables - the variable you are logging
+     */
     public static void logBooleanArray(String name, boolean[] variables) {
         if (!boolArrayEntries.containsKey(name)) {
             BooleanArrayEntry boolArrPub= baseTable.getBooleanArrayTopic(name).getEntry(variables);
@@ -160,6 +204,11 @@ public class NerdLog {
         boolArrPub.set(variables);
     }
 
+    /**
+     * make sure the variable has at least been given a initial logvar() before using this method
+     * @param name - the name of the variable you are getting, you can further organize by using "folder/folder/name" type of stucture
+     * @return - the value as presented on a dashboard
+     */
     public static boolean[] getBooleanArray(String name) {
         if (!boolArrayEntries.containsKey(name)) return new boolean[0];
 
